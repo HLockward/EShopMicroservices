@@ -17,7 +17,15 @@ builder.Services.AddMarten(opts =>
     opts.Connection(builder.Configuration.GetConnectionString("Database")!);
 }).UseLightweightSessions();
 
+if(builder.Environment.IsDevelopment())
+{
+    builder.Services.InitializeMartenWith<CatalogInitialData>();
+}
+
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
+builder.Logging.AddFilter("Npgsql.Command", LogLevel.Warning);
+builder.Logging.AddFilter("Npgsql", LogLevel.Warning); // ensure all Npgsql logs at Warning or above
 
 var app = builder.Build();
 
