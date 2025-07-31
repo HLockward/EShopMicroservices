@@ -24,6 +24,9 @@ if(builder.Environment.IsDevelopment())
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("Database")!);
+
 builder.Logging.AddFilter("Npgsql.Command", LogLevel.Warning);
 builder.Logging.AddFilter("Npgsql", LogLevel.Warning); // ensure all Npgsql logs at Warning or above
 
@@ -33,5 +36,11 @@ var app = builder.Build();
 app.MapCarter();
 
 app.UseExceptionHandler(options => { });
+
+app.UseHealthChecks("/health"
+    , new HealthCheckOptions
+    {
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+    });
 
 app.Run();
